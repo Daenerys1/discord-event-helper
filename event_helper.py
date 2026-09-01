@@ -121,7 +121,6 @@ Copy and paste this into Discord:
 
 `/create what: {session['name']} when: {session['time']} where: {session['location']}`
 
-If Discord doesn't immediately detect the command after pasting, put any character before `/create`, paste it, then delete that character.
 
 Type anything below to start another event.
 """
