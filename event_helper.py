@@ -1,8 +1,11 @@
-import discord
 import os
+import discord
 from discord.ext import commands
 
 TOKEN = os.getenv("DISCORD_TOKEN")
+
+# Replace with your event channel ID
+EVENT_CHANNEL_ID = 1544412516719927306
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -20,16 +23,17 @@ async def on_ready():
 @bot.event
 async def on_message(message):
 
+    # Ignore bots
     if message.author.bot:
         return
 
-    channel_name = "create-event-here"
-
-    if message.channel.name != channel_name:
+    # Ignore messages outside event channel
+    if message.channel.id != EVENT_CHANNEL_ID:
         return
 
     user_id = message.author.id
 
+    # Start a new event creation
     if user_id not in user_sessions:
 
         user_sessions[user_id] = {
@@ -37,59 +41,59 @@ async def on_message(message):
         }
 
         await message.reply(
-            "What's the name of your event?"
+            "📅 Let's create an event!\n\nWhat is the name of your event?"
         )
         return
 
     session = user_sessions[user_id]
 
+    # Event Name
     if session["step"] == "name":
 
-        session["name"] = message.content
+        session["name"] = message.content.strip()
         session["step"] = "time"
 
         await message.reply(
-            "What date and time is the event?"
+            "🕒 What date and time is the event?"
         )
-
         return
 
+    # Event Time
     if session["step"] == "time":
 
-        session["time"] = message.content
+        session["time"] = message.content.strip()
         session["step"] = "location"
 
         await message.reply(
-            "What's the address or location?"
+            "📍 What is the address or location?"
         )
-
         return
 
+    # Event Location
     if session["step"] == "location":
 
-        session["location"] = message.content
+        session["location"] = message.content.strip()
 
-        output = f"""
-✅ EVENT READY
+        await message.reply(
+            f"""✅ **EVENT READY**
 
-WHAT:
+**WHAT**
 {session['name']}
 
-WHEN:
+**WHEN**
 {session['time']}
 
-WHERE:
+**WHERE**
 {session['location']}
 
-Now type:
+Now type `/create`.
 
-/create
+Then copy the information above into the GroupFlows boxes.
 
-Then copy these values into the boxes.
-"""
-
-        await message.reply(output)
+You're done! 🎉"""
+        )
 
         del user_sessions[user_id]
+
 
 bot.run(TOKEN)
