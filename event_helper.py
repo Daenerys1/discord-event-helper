@@ -5,7 +5,7 @@ from discord.ext import commands
 TOKEN = os.getenv("DISCORD_TOKEN")
 
 # Replace with your event channel ID
-EVENT_CHANNEL_ID = 1544412516719927306
+EVENT_CHANNEL_ID = 1544435636050722946
 
 intents = discord.Intents.default()
 intents.message_content = True
