@@ -1,11 +1,15 @@
 import os
+import time
 import discord
 from discord.ext import commands
 
 TOKEN = os.getenv("DISCORD_TOKEN")
 
-# Replace with your event channel ID
+# Replace with your actual channel ID
 EVENT_CHANNEL_ID = 1544435636050722946
+
+# 5 minutes
+SESSION_TIMEOUT = 300
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -23,74 +27,109 @@ async def on_ready():
 @bot.event
 async def on_message(message):
 
-    # Ignore bots
     if message.author.bot:
         return
 
-    # Ignore messages outside event channel
     if message.channel.id != EVENT_CHANNEL_ID:
         return
 
     user_id = message.author.id
+    content = message.content.strip()
 
-    # Start a new event creation
+    # Cancel current event creation
+    if content.lower() in ["cancel", "stop", "quit", "exit"]:
+
+        if user_id in user_sessions:
+            del user_sessions[user_id]
+
+        await message.reply(
+            "❌ Event creation cancelled.\n\nType anything to start a new event."
+        )
+
+        return
+
+    # Check timeout
+    if user_id in user_sessions:
+
+        elapsed = time.time() - user_sessions[user_id]["last_activity"]
+
+        if elapsed > SESSION_TIMEOUT:
+
+            del user_sessions[user_id]
+
+            await message.reply(
+                "⏰ Your previous event request timed out after 5 minutes.\n\nLet's start over.\n\nWhat is the name of your event?"
+            )
+
+            user_sessions[user_id] = {
+                "step": "name",
+                "last_activity": time.time()
+            }
+
+            return
+
+    # Start new session
     if user_id not in user_sessions:
 
         user_sessions[user_id] = {
-            "step": "name"
+            "step": "name",
+            "last_activity": time.time()
         }
 
         await message.reply(
-            "📅 Let's create an event!\n\nWhat is the name of your event?"
+            "📅 Let's create an event!\n\nWhat is the name of your event?\n\n(Type 'cancel' anytime to stop.)"
         )
+
         return
 
     session = user_sessions[user_id]
+    session["last_activity"] = time.time()
 
-    # Event Name
+    # Step 1 - Event Name
     if session["step"] == "name":
 
-        session["name"] = message.content.strip()
+        session["name"] = content
         session["step"] = "time"
 
         await message.reply(
-            "🕒 What date and time is the event?"
+            "🕒 What date and time is the event?\n\n(Type 'cancel' anytime to stop.)"
         )
+
         return
 
-    # Event Time
+    # Step 2 - Event Time
     if session["step"] == "time":
 
-        session["time"] = message.content.strip()
+        session["time"] = content
         session["step"] = "location"
 
         await message.reply(
-            "📍 What is the address or location?"
+            "📍 What is the address or location?\n\n(Type 'cancel' anytime to stop.)"
         )
+
         return
 
-    # Event Location
+    # Step 3 - Event Location
     if session["step"] == "location":
 
-        session["location"] = message.content.strip()
+        session["location"] = content
 
         await message.reply(
-            f"""✅ **EVENT READY**
+            f"""✅ EVENT READY
 
-**WHAT**
-{session['name']}
+GROUPFLOWS WHAT BOX:
+> {session['name']}
 
-**WHEN**
-{session['time']}
+GROUPFLOWS WHEN BOX:
+> {session['time']}
 
-**WHERE**
-{session['location']}
+GROUPFLOWS WHERE BOX:
+> {session['location']}
 
-Now type `/create`.
+Now run /create and paste each value into its matching box.
 
-Then copy the information above into the GroupFlows boxes.
-
-You're done! 🎉"""
+Type anything below to start another event.
+"""
         )
 
         del user_sessions[user_id]
