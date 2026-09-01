@@ -115,7 +115,7 @@ async def on_message(message):
         session["location"] = content
 
         await message.reply(
-            f"""✅ EVENT READY
+            f"""✅ EVENT ALMOST READY
 
 GROUPFLOWS WHAT BOX:
 > {session['name']}
@@ -126,7 +126,7 @@ GROUPFLOWS WHEN BOX:
 GROUPFLOWS WHERE BOX:
 > {session['location']}
 
-Now run /create and paste each value into its matching box.
+Now type /create (have to add a space after /create) in the Discord chat and just paste each answer into its matching box.
 
 Type anything below to start another event.
 """
