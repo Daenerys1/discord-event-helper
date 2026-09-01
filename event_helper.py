@@ -115,18 +115,13 @@ async def on_message(message):
         session["location"] = content
 
         await message.reply(
-            f"""✅ EVENT ALMOST READY
+            f"""✅ EVENT READY
 
-GROUPFLOWS WHAT BOX:
-> {session['name']}
+Copy and paste this into Discord:
 
-GROUPFLOWS WHEN BOX:
-> {session['time']}
+`/create what: {session['name']} when: {session['time']} where: {session['location']}`
 
-GROUPFLOWS WHERE BOX:
-> {session['location']}
-
-Now type /create (have to add a space after /create) in the Discord chat and just paste each answer into its matching box.
+If Discord doesn't immediately detect the command after pasting, put any character before `/create`, paste it, then delete that character.
 
 Type anything below to start another event.
 """
