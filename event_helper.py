@@ -6,7 +6,7 @@ from discord.ext import commands
 TOKEN = os.getenv("DISCORD_TOKEN")
 
 # Replace with your actual channel ID
-EVENT_CHANNEL_ID = 1544435636050722946
+EVENT_CHANNEL_ID = 123456789012345678
 
 # 5 minutes
 SESSION_TIMEOUT = 300
@@ -113,14 +113,32 @@ async def on_message(message):
     if session["step"] == "location":
 
         session["location"] = content
+        session["step"] = "description"
+
+        await message.reply(
+            "📝 Optional: What is the event description?\n\nType 'skip' to leave this blank.\n\n(Type 'cancel' anytime to stop.)"
+        )
+
+        return
+
+    # Step 4 - Event Description
+    if session["step"] == "description":
+
+        description_text = ""
+
+        if content.lower() != "skip":
+            description_text = f" description: {content}"
 
         await message.reply(
             f"""✅ EVENT READY
 
 Copy and paste this into Discord:
 
-`/create what: {session['name']} when: {session['time']} where: {session['location']}`
+`/create what: {session['name']} when: {session['time']} where: {session['location']}{description_text}`
 
+📱 On mobile? If it doesn't work the first time, delete it and paste again.
+
+👥 Want RSVP limits? Open the Activity Page after creating the event.
 
 Type anything below to start another event.
 """
