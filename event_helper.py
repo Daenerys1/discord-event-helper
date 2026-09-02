@@ -6,7 +6,7 @@ from discord.ext import commands
 TOKEN = os.getenv("DISCORD_TOKEN")
 
 # Replace with your actual channel ID
-EVENT_CHANNEL_ID = 123456789012345678
+EVENT_CHANNEL_ID = 1544435636050722946
 
 # 5 minutes
 SESSION_TIMEOUT = 300
